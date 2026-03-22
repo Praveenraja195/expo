@@ -44,14 +44,23 @@ def serve_js():
     return send_from_directory('.', 'main.js')
 
 # --- 1. DATA LOAD FROM POSTGRESQL (CSVs only used for first-time seeding) ---
+print("🔍 Initialization Phase 1: Checking environment...")
 engine = None
 df_3rd_year = pd.DataFrame()
 df_2nd_year = pd.DataFrame()
 df_students = pd.DataFrame()
 
 try:
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://genesis_user:genesis_pass@db:5432/genesis_db')
-    engine = sa.create_engine(DATABASE_URL)
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    if not DATABASE_URL:
+        print("⚠️ Warning: DATABASE_URL not found in environment. Using local fallback.")
+        DATABASE_URL = 'postgresql://genesis_user:genesis_pass@db:5432/genesis_db'
+    
+    print("🔍 Initialization Phase 2: Building engine...")
+    # Add a 10s connection timeout so it doesn't hang the whole deploy
+    engine = sa.create_engine(DATABASE_URL, connect_args={'connect_timeout': 10})
+    
+    print("🔍 Initialization Phase 3: Inspecting database...")
     insp = sa.inspect(engine)
 
     # --- SEED: Only runs ONCE on first boot if tables do not exist yet ---
@@ -83,6 +92,7 @@ try:
         print("   Created scores table.")
 
     if not insp.has_table('messages'):
+        print("📥 Creating messages table...")
         with engine.begin() as conn:
             conn.execute(sa.text("""
                 CREATE TABLE messages (
@@ -94,14 +104,15 @@ try:
                     is_read BOOLEAN DEFAULT FALSE
                 )
             """))
-        print("   Created messages table.")
+        print("   ✅ Messages table created.")
 
     # --- PRIMARY DATA FETCH: Always from PostgreSQL ---
+    print("🔍 Initialization Phase 4: Syncing data from PostgreSQL...")
     df_3rd_year = pd.read_sql_table('3rd_year_students', engine).astype(str)
     df_2nd_year = pd.read_sql_table('2nd_year_students', engine).astype(str)
     df_students = pd.concat([df_3rd_year, df_2nd_year], ignore_index=True)
 
-    print(f"✅ System Online (PostgreSQL): {len(df_3rd_year)} 3rd-year | {len(df_2nd_year)} 2nd-year | {len(df_students)} total students.")
+    print(f"🚀 INITIALIZATION COMPLETE: {len(df_3rd_year)} 3rd-year | {len(df_2nd_year)} 2nd-year | {len(df_students)} total students.")
 
 except Exception as e:
     print(f"❌ CRITICAL: Cannot connect to PostgreSQL. Reason: {e}")
