@@ -31,6 +31,10 @@ def add_header(response):
     response.headers['Expires'] = '-1'
     return response
 
+@app.route('/healthz')
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 @app.route('/styles_v7.css')
 def serve_css():
     return send_from_directory('.', 'styles.css')
