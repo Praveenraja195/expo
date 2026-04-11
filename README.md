@@ -105,5 +105,5 @@ Here is a full visual walkthrough of the Genesis platform, showcasing our defini
 <br />
 
 <div align="center">
-  <i>Built with ❤️ by Praveenraja195 and the Genesis Team</i>
+  <i>Built with ❤️ by Praveenraja and the Genesis Team</i>
 </div>
