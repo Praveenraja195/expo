@@ -7,27 +7,51 @@
 
 **Genesis** is an award-winning, comprehensive platform engineered to bridge the gap between Students, Advisors, and Department Heads. It provides an all-in-one ecosystem for academic tracking, personal AI mentoring, granular data filtering, and real-time messaging, encapsulated in a premium "glassmorphism" UI.
 
-🏆 **1st Place Winner** at [Insert Event Name Here]
+🏆 **1st Place Winner at AGENTVERSE** 🏆
 
 ---
 
-## ✨ Core Features
+## 🏅 Award Certificate
 
-*   **🎓 Role-Based Ecosystem:** Dedicated interfaces and routing for Students, Advisors, and HODs (Head of Department), ensuring secure and filtered data access tailored to user privileges.
-*   **🤖 AI Data Analytics (Staff Portal):** Powered by **Groq (Meta Llama 3)** and **Google Gemini** APIs. Staff can directly upload `.xlsx` datasets to the secure PostgreSQL database and interactively "chat" with their data. The AI processes complex datasets and generates dynamic dashboard charts instantly.
-*   **🧠 Personal AI Student Mentor:** Students have an exclusive LLM mentor that automatically ingests their precise academic profile (GPA history, skills, weaknesses) to provide hyper-personalized career and study guidance.
-*   **💬 Real-Time Inter-Portal Messaging:** A robust SQL-backed messaging system enabling instant communication between students and staff, complete with active contact lists, read receipts, and full chat history logging.
-*   **📊 Dynamic Student Profiling:** The dynamic student dashboard visualizes deep insights, including current CGPA, attendance metrics, mock interview ratings, aptitude scores, arrear history, and career goals.
-*   **🌟 The "Spotlight" Engine:** An algorithmic scanner that parses the loaded dataset to automatically identify and showcase the top-performing students across specific faculty cohorts and academic years.
-*   **📝 Live Skill-Check Scoreboard:** A real-time assignment and assessment system allowing students to submit tasks while administrators view a live, dynamically updated leaderboard of scores and submission statuses.
+*(Note: Add your certificate photo to the `screenshots` folder and name it `certificate.png` to display it here!)*
+
+![Agentverse 1st Place Certificate](screenshots/certificate.png)
 
 ---
 
-## 📸 Application Gallery
+## ✨ Core Components & Architecture
 
-Here is a full visual walkthrough of the Genesis platform, showcasing the various dashboards, AI chatbot interfaces, and dynamic data tables!
+We built Genesis to solve fragmented college data management by combining robust database systems with state-of-the-art Generative AI. 
 
-*(Note: You can add custom descriptions below any of these images if you'd like to label them later!)*
+### 🎓 1. Role-Based Ecosystem & Dashboards
+*   **Distinct Portals:** Separate, secure login portals and dashboard views for Students, Advisors, and HODs (Head of Department).
+*   **Dynamic Data Routing:** Secure data access tailored entirely to user privileges. Advisors only see their specific cohorts, while Admins/HODs have global view access.
+
+### 🤖 2. Staff AI Data Analytics Engine
+*   **Instant Excel Chat:** Powered by **Groq (Meta Llama 3)** and **Google Gemini** APIs. Staff can directly upload `.xlsx` datasets to the PostgreSQL database and interactively "chat" with their data.
+*   **Dynamic Chart Generation:** The LLM returns structured JSON that our frontend parses to dynamically generate visual dashboard charts instantly based on the queries.
+
+### 🧠 3. Personal AI Student Mentor
+*   **Context-Aware Advice:** Students have an exclusive LLM mentor that automatically ingests their precise academic profile. By feeding the LLM their specific GPA history, technical skills, and weaknesses, it acts as a hyper-personalized career and study guide.
+
+### 💬 4. Real-Time Inter-Portal Messaging
+*   **Cross-Platform Chat:** A robust SQL-backed messaging system enabling instant communication between students and faculty.
+*   **Smart Tracking:** Includes active contact mapping, read receipts, and full chat history logging.
+
+### 📊 5. Dynamic Student Profiling
+*   **Comprehensive Metrics:** The student dashboard visualizes deep insights, pulling directly from PostgreSQL to map out current CGPA, attendance metrics, mock interview ratings, aptitude scores, arrear history, and career goals all in one glassmorphism card UI.
+
+### 🌟 6. The "Spotlight" Algorithm
+*   **Top Achiever Scanner:** A custom algorithmic scanner that parses the loaded dataset to automatically identify and spotlight the top-performing students across specific faculty cohorts, providing an immediate snapshot of top talent.
+
+### 📝 7. Live Skill-Check Scoreboard
+*   **Assessment Tracking:** A real-time assignment system allowing students to submit tasks and scores, while administrators and staff view a live, dynamically updated leaderboard matrix.
+
+---
+
+## 📸 AGENTVERSE Showcase Gallery
+
+Here is a full visual walkthrough of the Genesis platform, showcasing our 20 defining modules, dashboards, chat interfaces, and dynamic data tables that won us 1st place!
 
 ![Screenshot 1](screenshots/1.png)
 <br /><br />
@@ -58,33 +82,25 @@ Here is a full visual walkthrough of the Genesis platform, showcasing the variou
 ![Screenshot 14](screenshots/14.png)
 <br /><br />
 ![Screenshot 15](screenshots/15.png)
+<br /><br />
+![Screenshot 16](screenshots/16.png)
+<br /><br />
+![Screenshot 17](screenshots/17.png)
+<br /><br />
+![Screenshot 18](screenshots/18.png)
+<br /><br />
+![Screenshot 19](screenshots/19.png)
+<br /><br />
+![Screenshot 20](screenshots/20.png)
 
 ---
 
 ## 🛠️ Technical Stack
 
-**Frontend Framework:**
-*   HTML5 & CSS3 (Premium Glassmorphism Aesthetic)
-*   Vanilla JavaScript (Dynamic Rendering & Chart Generation)
-
-**Backend Architecture:**
-*   Python (Flask) REST API framework
-*   SQLAlchemy & Pandas (For deep data manipulation)
-
-**Artificial Intelligence:**
-*   Groq API (Llama-3.3-70b-versatile)
-*   Google Gemini API (Gemini-2.0-flash Fallback Engine)
-
-**Database & Deployment:**
-*   PostgreSQL (Enterprise-grade relation mapping)
-*   Deployed and hosted securely via Render
-
----
-
-## 🚀 Future Roadmap
-*   Migration of the Student Portal to React Native (Expo) for Native iOS/Android support. 
-*   Integration with campus automated attendance systems (RFID/Biometrics).
-*   Automated PDF Report Generation for end-of-semester advisor reviews.
+**Frontend Design:** HTML5 & CSS3 (Premium Glassmorphism Aesthetic), Vanilla JavaScript.
+**Backend Logic:** Python (Flask) REST APIs, SQLAlchemy, Pandas.
+**AI Integration:** Groq API (Llama-3.3-70b-versatile), Google Gemini API (Fallback).
+**Deployment & DB:** Render, Enterprise PostgreSQL.
 
 <br />
 
