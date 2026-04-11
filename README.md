@@ -25,35 +25,39 @@
 
 ## 📸 Application Gallery
 
-*(Note: Replace these placeholder filenames with the actual names of the screenshots in your `screenshots` folder!)*
+Here is a full visual walkthrough of the Genesis platform, showcasing the various dashboards, AI chatbot interfaces, and dynamic data tables!
 
-### 1. Student Dashboard & Profile
-> The student view, highlighting their performance metrics, skills, and progress.
-![Student Dashboard](screenshots/1.png)
+*(Note: You can add custom descriptions below any of these images if you'd like to label them later!)*
 
-### 2. Personal AI Mentor (Student Chat)
-> Context-aware AI mentoring based specifically on the student's dataset record.
-![AI Mentor](screenshots/2.png)
-
-### 3. Staff/Admin Dashboard
-> The command center for advisors, featuring upload zones, class statistics, and access to all student records.
-![Staff Dashboard](screenshots/3.png)
-
-### 4. Direct AI Excel Analytics
-> Staff can upload an Excel dataset and ask the AI naturally to graph insights.
-![AI Data Analytics & Charts](screenshots/4.png)
-
-### 5. Inter-Portal Messaging
-> Real-time collaborative chat between students and faculty.
-![Messaging System](screenshots/5.png)
-
-### 6. The "Spotlight" View
-> Identifying the highest achiever of the cohort dynamically.
-![Spotlight View](screenshots/6.png)
-
-### 7. Real-Time Skill Scoreboard
-> Admin overview of which students have completed the live assessments.
-![Skill Scoreboard](screenshots/7.png)
+![Screenshot 1](screenshots/1.png)
+<br /><br />
+![Screenshot 2](screenshots/2.png)
+<br /><br />
+![Screenshot 3](screenshots/3.png)
+<br /><br />
+![Screenshot 4](screenshots/4.png)
+<br /><br />
+![Screenshot 5](screenshots/5.png)
+<br /><br />
+![Screenshot 6](screenshots/6.png)
+<br /><br />
+![Screenshot 7](screenshots/7.png)
+<br /><br />
+![Screenshot 8](screenshots/8.png)
+<br /><br />
+![Screenshot 9](screenshots/9.png)
+<br /><br />
+![Screenshot 10](screenshots/10.png)
+<br /><br />
+![Screenshot 11](screenshots/11.png)
+<br /><br />
+![Screenshot 12](screenshots/12.png)
+<br /><br />
+![Screenshot 13](screenshots/13.png)
+<br /><br />
+![Screenshot 14](screenshots/14.png)
+<br /><br />
+![Screenshot 15](screenshots/15.png)
 
 ---
 
