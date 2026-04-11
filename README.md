@@ -13,9 +13,7 @@
 
 ## 🏅 Award Certificate
 
-*(Note: Add your certificate photo to the `screenshots` folder and name it `certificate.png` to display it here!)*
-
-![Agentverse 1st Place Certificate](screenshots/certificate.png)
+![Agentverse 1st Place Certificate](screenshots/certificate.png.jpeg)
 
 ---
 
@@ -27,31 +25,35 @@ We built Genesis to solve fragmented college data management by combining robust
 *   **Distinct Portals:** Separate, secure login portals and dashboard views for Students, Advisors, and HODs (Head of Department).
 *   **Dynamic Data Routing:** Secure data access tailored entirely to user privileges. Advisors only see their specific cohorts, while Admins/HODs have global view access.
 
-### 🤖 2. Staff AI Data Analytics Engine
-*   **Instant Excel Chat:** Powered by **Groq (Meta Llama 3)** and **Google Gemini** APIs. Staff can directly upload `.xlsx` datasets to the PostgreSQL database and interactively "chat" with their data.
+### 🧠 2. K-Means Clustering & Radar Graphs
+*   **Algorithmic Analysis:** We implemented computationally advanced logic using **K-Means Clustering** to segment students based on their technical skills, aptitude scores, and academic performances.
+*   **Visual Data Mapping:** This multi-dimensional clustering data is beautifully rendered to the user via interactive **Radar Graphs**, giving faculty incredibly fast visual maps of a student's core competencies.
+
+### 🤖 3. Drag-and-Drop Staff AI Analytics Engine
+*   **Intuitive Drag-and-Drop UX:** Staff can grab their bulk `.xlsx` datasets and simply drag-and-drop them into the interface without dealing with clunky file explorers. 
+*   **Chat with your Files:** Powered by **Groq (Meta Llama 3)** and **Google Gemini** APIs. Once the file is dropped into the PostgreSQL database, staff can instantly type questions about the dataset directly into the chat system.
 *   **Dynamic Chart Generation:** The LLM returns structured JSON that our frontend parses to dynamically generate visual dashboard charts instantly based on the queries.
 
-### 🧠 3. Personal AI Student Mentor
+### ⚡ 4. n8n Automation Workflows
+*   **Webhook Integrations:** Integrated **n8n** automation pipelines directly into the application ecosystem, allowing our system to trigger advanced, automated external messaging and cross-platform notification pipelines effortlessly based on database events.
+
+### 🎓 5. Personal AI Student Mentor
 *   **Context-Aware Advice:** Students have an exclusive LLM mentor that automatically ingests their precise academic profile. By feeding the LLM their specific GPA history, technical skills, and weaknesses, it acts as a hyper-personalized career and study guide.
 
-### 💬 4. Real-Time Inter-Portal Messaging
-*   **Cross-Platform Chat:** A robust SQL-backed messaging system enabling instant communication between students and faculty.
-*   **Smart Tracking:** Includes active contact mapping, read receipts, and full chat history logging.
+### 💬 6. Real-Time Inter-Portal Messaging
+*   **Cross-Platform Chat:** A robust SQL-backed messaging system enabling instant communication between students and faculty. Includes active contact mapping, read receipts, and full chat history logging.
 
-### 📊 5. Dynamic Student Profiling
-*   **Comprehensive Metrics:** The student dashboard visualizes deep insights, pulling directly from PostgreSQL to map out current CGPA, attendance metrics, mock interview ratings, aptitude scores, arrear history, and career goals all in one glassmorphism card UI.
+### 🌟 7. The "Spotlight" Algorithm
+*   **Top Achiever Scanner:** A custom algorithmic scanner that parses the loaded dataset to automatically identify and spotlight the top-performing students across specific faculty cohorts.
 
-### 🌟 6. The "Spotlight" Algorithm
-*   **Top Achiever Scanner:** A custom algorithmic scanner that parses the loaded dataset to automatically identify and spotlight the top-performing students across specific faculty cohorts, providing an immediate snapshot of top talent.
-
-### 📝 7. Live Skill-Check Scoreboard
+### 📝 8. Live Skill-Check Scoreboard
 *   **Assessment Tracking:** A real-time assignment system allowing students to submit tasks and scores, while administrators and staff view a live, dynamically updated leaderboard matrix.
 
 ---
 
 ## 📸 AGENTVERSE Showcase Gallery
 
-Here is a full visual walkthrough of the Genesis platform, showcasing our 20 defining modules, dashboards, chat interfaces, and dynamic data tables that won us 1st place!
+Here is a full visual walkthrough of the Genesis platform, showcasing our defining modules, drag-and-drop dashboards, n8n automations, chat interfaces, radar graphs, and dynamic data tables that won us 1st place!
 
 ![Screenshot 1](screenshots/1.png)
 <br /><br />
@@ -70,8 +72,6 @@ Here is a full visual walkthrough of the Genesis platform, showcasing our 20 def
 ![Screenshot 8](screenshots/8.png)
 <br /><br />
 ![Screenshot 9](screenshots/9.png)
-<br /><br />
-![Screenshot 10](screenshots/10.png)
 <br /><br />
 ![Screenshot 11](screenshots/11.png)
 <br /><br />
@@ -97,9 +97,9 @@ Here is a full visual walkthrough of the Genesis platform, showcasing our 20 def
 
 ## 🛠️ Technical Stack
 
-**Frontend Design:** HTML5 & CSS3 (Premium Glassmorphism Aesthetic), Vanilla JavaScript.
-**Backend Logic:** Python (Flask) REST APIs, SQLAlchemy, Pandas.
-**AI Integration:** Groq API (Llama-3.3-70b-versatile), Google Gemini API (Fallback).
+**Frontend Design:** HTML5 & CSS3 (Premium Glassmorphism Aesthetic), Vanilla JavaScript, Chart.js (Radar Mapping).
+**Backend Logic:** Python (Flask) REST APIs, SQLAlchemy, Pandas (K-Means Data Handling).
+**AI & Automations:** Groq API (Llama 3), Google Gemini API, **n8n Automation Engine**.
 **Deployment & DB:** Render, Enterprise PostgreSQL.
 
 <br />
