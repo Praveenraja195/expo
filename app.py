@@ -155,6 +155,36 @@ def get_groq():
 def get_gemini():
     return random.choice(gemini_clients) if gemini_clients else None
 
+def call_groq_with_failover(messages, model="llama-3.3-70b-versatile"):
+    """Try ALL Groq keys in random order until one works."""
+    clients = groq_clients.copy()
+    random.shuffle(clients)
+    last_error = None
+    for client in clients:
+        try:
+            res = client.chat.completions.create(model=model, messages=messages)
+            return res.choices[0].message.content
+        except Exception as e:
+            last_error = e
+            logging.warning(f"Groq key failed, trying next... Error: {e}")
+            continue
+    raise last_error or Exception("All Groq keys exhausted")
+
+def call_gemini_with_failover(contents, model="gemini-3.8-flash"):
+    """Try ALL Gemini keys in random order until one works."""
+    clients = gemini_clients.copy()
+    random.shuffle(clients)
+    last_error = None
+    for client in clients:
+        try:
+            res = client.models.generate_content(model=model, contents=contents)
+            return res.text
+        except Exception as e:
+            last_error = e
+            logging.warning(f"Gemini key failed, trying next... Error: {e}")
+            continue
+    raise last_error or Exception("All Gemini keys exhausted")
+
 # Initialize JSON-backed/DB-backed skill-check scoreboard
 SCORES_FILE = 'scores.json'
 def load_scores():
@@ -291,18 +321,15 @@ def staff_chatbot():
         """
 
         try:
-            res = get_groq().chat.completions.create(
-                model="llama-3.3-70b-versatile",
+            reply = call_groq_with_failover(
                 messages=[{"role": "system", "content": prompt}, {"role": "user", "content": user_msg}]
             )
-            reply = res.choices[0].message.content
         except Exception as e:
-            logging.error(f"Groq Error in staff: {e}. Falling back to Gemini.")
+            logging.error(f"All Groq keys failed in staff: {e}. Falling back to all Gemini keys.")
             try:
-                res = get_gemini().models.generate_content(model='gemini-3.8-flash', contents=f"{prompt}\n{user_msg}")
-                reply = res.text
+                reply = call_gemini_with_failover(contents=f"{prompt}\n{user_msg}")
             except Exception as e2:
-                logging.error(f"Gemini Error in staff: {e2}")
+                logging.error(f"All Gemini keys failed in staff: {e2}")
                 return jsonify({"status": "error", "message": "All AI models failed", "reply": f"AI Error: {str(e2)}"})
 
         # 🚀 ROBUST JSON EXTRACTION: Find the first valid JSON block { ... }
@@ -354,15 +381,12 @@ def student_chatbot():
         - Keep responses concise and actionable."""
 
         try:
-            res = get_groq().chat.completions.create(
-                model="llama-3.3-70b-versatile",
+            reply = call_groq_with_failover(
                 messages=[{"role": "system", "content": prompt}, {"role": "user", "content": user_msg}]
             )
-            reply = res.choices[0].message.content
         except Exception as e:
-            logging.error(f"Groq/Gemini Error in student: {e}")
-            res = get_gemini().models.generate_content(model='gemini-3.8-flash', contents=f"{prompt}\n{user_msg}")
-            reply = res.text
+            logging.error(f"All Groq keys failed in student: {e}. Falling back to all Gemini keys.")
+            reply = call_gemini_with_failover(contents=f"{prompt}\n{user_msg}")
 
         return jsonify({"status": "success", "reply": reply})
     except Exception as e:
