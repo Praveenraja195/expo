@@ -299,7 +299,7 @@ def staff_chatbot():
         except Exception as e:
             logging.error(f"Groq Error in staff: {e}. Falling back to Gemini.")
             try:
-                res = get_gemini().models.generate_content(model='gemini-3.8-flash', contents=f"{prompt}\n{user_msg}")
+                res = get_gemini().models.generate_content(model='gemini-2.0-flash', contents=f"{prompt}\n{user_msg}")
                 reply = res.text
             except Exception as e2:
                 logging.error(f"Gemini Error in staff: {e2}")
@@ -361,7 +361,7 @@ def student_chatbot():
             reply = res.choices[0].message.content
         except Exception as e:
             logging.error(f"Groq/Gemini Error in student: {e}")
-            res = get_gemini().models.generate_content(model='gemini-3.8-flash', contents=f"{prompt}\n{user_msg}")
+            res = get_gemini().models.generate_content(model='gemini-2.0-flash', contents=f"{prompt}\n{user_msg}")
             reply = res.text
 
         return jsonify({"status": "success", "reply": reply})
