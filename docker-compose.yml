@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: genesis_user
+      POSTGRES_PASSWORD: genesis_pass
+      POSTGRES_DB: genesis_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  web:
+    build: .
+    command: flask run --host=0.0.0.0
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./static:/app/static
+      - ./student_coach_dataset_final.csv:/app/student_coach_dataset_final.csv
+      - ./2nd_year_dataset.csv:/app/2nd_year_dataset.csv
+      - ./app.py:/app/app.py
+      - ./index.html:/app/index.html
+      - ./main.js:/app/main.js
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://genesis_user:genesis_pass@db:5432/genesis_db
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

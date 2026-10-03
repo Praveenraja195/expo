@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Intelligence | GENESIS</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom UI Files -->
+    <link rel="stylesheet" href="styles_v7.css">
+
+    <!-- CSS Injected Directly due to persistent Windows Docker Cache/Sync failures -->
+    <style>
+        .chat-contact-item {
+            display: flex; align-items: center; padding: 12px 16px; cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            gap: 12px; margin-bottom: 10px; border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .chat-contact-item.active { background: rgba(129, 140, 248, 0.15) !important; border-color: rgba(129, 140, 248, 0.4) !important; }
+        .chat-contact-name { font-weight: 700; font-size: 1.05rem; color: white; margin-bottom: 2px; }
+        .chat-contact-role { font-size: 0.78rem; color: #818cf8; font-weight: 500; }
+        .chat-contact-item { position: relative; } /* needed for absolute badge */
+        .chat-contact-unread {
+            position: absolute !important; right: 12px !important;
+            width: 20px !important; height: 20px !important; border-radius: 50% !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            padding: 0 !important; font-size: 0.7rem !important;
+        }
+        
+        #chat-messages-area { display: flex !important; flex-direction: column !important; }
+        .chat-msg-bubble {
+            width: fit-content !important; max-width: 75% !important;
+            padding: 12px 18px !important; border-radius: 18px !important;
+            font-size: 0.95rem; line-height: 1.4; word-wrap: break-word;
+        }
+        .chat-msg-sent {
+            align-self: flex-end !important;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa) !important;
+            color: white !important; border-bottom-right-radius: 4px !important;
+        }
+        .chat-msg-recv {
+            align-self: flex-start !important;
+            background: rgba(255, 255, 255, 0.12) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            color: white !important; border-bottom-left-radius: 4px !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- --- BACKGROUND LAYERS --- -->
+    <div class="hero-visual-layer">
+        <div id="bg-hero" class="img-bg hero-img"></div>
+        <div id="bg-login" class="img-bg login-img hidden"></div>
+        <div id="bg-student" class="img-bg student-img hidden"></div>
+        <div id="bg-staff" class="img-bg staff-img hidden"></div>
+        <div class="wave-wrap">
+            <div class="wave wave-1"></div>
+            <div class="wave wave-2"></div>
+            <div class="wave wave-3"></div>
+        </div>
+        <div class="vignette"></div>
+    </div>
+
+    <!-- --- SHARED NAVIGATION --- -->
+    <nav>
+        <div class="logo" onclick="goHome()">
+            <i data-lucide="zap"></i> GENESIS
+        </div>
+        <div id="nav-actions">
+            <button class="btn btn-primary" onclick="showView('login')">Initialize Portal</button>
+        </div>
+        <!-- Simple Reset for Dashboards -->
+        <button id="nav-home" class="btn btn-outline hidden" onclick="goHome()">
+            <i data-lucide="home"></i> Terminal Home
+        </button>
+    </nav>
+
+    <!-- --- LANDING PAGE --- -->
+    <main id="section-landing" class="section">
+        <h1>PREDICTIVE <br>ACADEMIC <span style="color:var(--primary)">INSIGHTS.</span></h1>
+        <p class="subtitle">GENESIS: An AI-driven diagnostic engine designed to bridge the gap between student potential and academic excellence through predictive ML clustering and real-time mentorship.</p>
+        <div style="display:flex; gap:20px">
+            <button class="btn btn-primary" onclick="showView('login')">Access Dynamic Portal</button>
+            <button class="btn btn-outline" onclick="showBlueprint()">Explore System Blueprint</button>
+        </div>
+    </main>
+
+    <!-- --- LOGIN PORTAL --- -->
+    <main id="section-login" class="section hidden">
+        <div class="portal-wrap">
+            <h2 id="login-title" style="font-size: 2.2rem; margin-bottom: 8px">System Entry</h2>
+            <p id="login-hint" style="color:var(--text-muted); margin-bottom: 40px">Select your destination portal.</p>
+
+            <div id="portal-select" style="display:flex; flex-direction:column; gap:16px">
+                <button class="btn btn-outline" style="justify-content:center; padding: 24px" onclick="initPortal('student')">
+                    <i data-lucide="user"></i> I am a Student
+                </button>
+                <button class="btn btn-outline" style="justify-content:center; padding: 24px" onclick="initPortal('staff')">
+                    <i data-lucide="shield-check"></i> I am Faculty
+                </button>
+                <button class="btn btn-outline" style="justify-content:center; padding: 24px; border-color: var(--accent); color: var(--accent);" onclick="initPortal('hod')">
+                    <i data-lucide="crown"></i> HOD Login
+                </button>
+                <button class="btn btn-primary" style="justify-content:center; margin-top:20px" onclick="goHome()">Cancel Entry</button>
+            </div>
+
+            <div id="auth-form" class="hidden">
+                <div class="input-group">
+                    <label id="login-id-label">Identity ID</label>
+                    <input type="text" id="login-id" placeholder="Enter ID...">
+                </div>
+                <div class="input-group">
+                    <label id="login-pass-label">Access Key</label>
+                    <input type="password" id="login-pass" placeholder="••••••••">
+                </div>
+                <div style="display:flex; gap:16px; margin-top:32px">
+                    <button class="btn btn-outline" style="flex:1" onclick="resetPortal()">Back</button>
+                    <button class="btn btn-primary" style="flex:2" onclick="handleLogin()">Authenticate</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- --- STUDENT DASHBOARD --- -->
+    <main id="section-student" class="section hidden">
+        <div class="bento-grid">
+            <div class="bento-card span-8" style="display:flex; align-items:center; gap:24px">
+                <div class="profile-photo-wrap" style="position:relative; width:70px; height:70px;">
+                    <div id="stu-initial" style="width:100%; height:100%; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:700">A</div>
+                    <img id="stu-photo" src="" alt="" style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; object-fit:cover; display:none;">
+                </div>
+                <div>
+                    <h2 id="stu-name" style="font-size: 1.8rem">Syncing...</h2>
+                    <p id="stu-dept" style="color:var(--text-muted)">Loading Records</p>
+                </div>
+            </div>
+            <div class="bento-card span-4">
+                <button class="btn btn-outline" style="width:100%; justify-content:center" onclick="goHome()">Terminals Log Out</button>
+            </div>
+
+            <div class="bento-card span-4">
+                <div class="stat-label">Academic CGPA</div>
+                <div style="display:flex; align-items:baseline; flex-wrap:wrap">
+                    <div class="stat-large" id="val-cgpa">--</div>
+                    <span id="val-cgpa-trend" class="trend-same"></span>
+                </div>
+            </div>
+            <div class="bento-card span-4">
+                <div class="stat-label">Attendance Rank</div>
+                <div class="stat-large" id="val-att">--</div>
+            </div>
+            <div class="bento-card span-4">
+                <div class="stat-label">Project Nodes</div>
+                <div class="stat-large" id="val-proj">--</div>
+            </div>
+
+            <div class="bento-card span-8">
+                <div class="chat-container">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:16px">
+                        <span style="font-weight:700">Personal AI Mentor</span>
+                        <span style="color:var(--primary); font-size:0.8rem">● Online</span>
+                    </div>
+                    <div class="chat-box" id="stu-chat-box">
+                        <div class="msg msg-ai">Welcome to your academic command center. Neural links established. How can I assist?</div>
+                    </div>
+                    <div class="chat-footer">
+                        <button class="mic-btn" id="stu-mic-btn" onclick="toggleVoice('student')" title="Voice Input">
+                            <svg id="stu-mic-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        </button>
+                        <input type="text" id="stu-input" placeholder="Query data or speak..." onkeypress="if(event.key==='Enter') sendQuery('student')">
+                        <button class="speaker-btn" id="stu-speaker-btn" onclick="toggleSpeaker('student')" title="AI Voice On/Off">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        </button>
+                        <button class="btn btn-primary" onclick="sendQuery('student')">Run</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bento-card span-4">
+                <h3 style="margin-bottom:16px"><i data-lucide="id-card" style="width:16px;vertical-align:middle;margin-right:6px;color:var(--primary)"></i>Registry</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.85rem">
+                    <div>
+                        <label style="font-size:0.68rem">Reg. ID</label>
+                        <div id="rec-id" style="font-weight:600;word-break:break-all">--</div>
+                    </div>
+                    <div>
+                        <label style="font-size:0.68rem">Year / Dept</label>
+                        <div id="rec-year" style="font-weight:600">--</div>
+                    </div>
+                    <div style="grid-column:span 2">
+                        <label style="font-size:0.68rem">Email</label>
+                        <div id="rec-email" style="font-weight:500;word-break:break-all;font-size:0.8rem">--</div>
+                    </div>
+                    <div style="grid-column:span 2">
+                        <label style="font-size:0.68rem">Skills</label>
+                        <div id="rec-skills" style="color:var(--primary);font-size:0.8rem;line-height:1.4">--</div>
+                    </div>
+                    <div style="grid-column:span 2">
+                        <label style="font-size:0.68rem">Career Goal</label>
+                        <div id="rec-goal" style="color:var(--accent);font-weight:600;font-size:0.85rem">--</div>
+                    </div>
+                    <div style="grid-column:span 2; display:flex; gap:16px; margin-top:4px;">
+                        <a id="rec-linkedin" href="#" target="_blank" style="display:flex; align-items:center; gap:6px; color:var(--primary); font-size:0.85rem; text-decoration:none; font-weight:500;">
+                            <i data-lucide="linkedin" style="width:14px; height:14px;"></i> LinkedIn
+                        </a>
+                        <a id="rec-github" href="#" target="_blank" style="display:flex; align-items:center; gap:6px; color:var(--text); font-size:0.85rem; text-decoration:none; font-weight:500;">
+                            <i data-lucide="github" style="width:14px; height:14px;"></i> GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Removed Expertise Node and Strategic Goal to avoid redundancy with Registry -->
+
+            <div class="bento-card span-4">
+                <div class="stat-label">Aptitude Score</div>
+                <div class="stat-large" id="val-aptitude">--</div>
+            </div>
+            <div class="bento-card span-4">
+                <div class="stat-label">Interview Rating</div>
+                <div class="stat-large" id="val-interview">--</div>
+            </div>
+            <div class="bento-card span-4">
+                <div class="stat-label">Backlog Status</div>
+                <div class="stat-large" id="val-arrears" style="color:var(--accent)">--</div>
+            </div>
+
+            <div class="bento-card span-12">
+                <h3 style="margin-bottom:16px">
+                    <i data-lucide="trending-up" style="width:18px;vertical-align:middle;margin-right:8px;color:var(--primary)"></i>
+                    GPA Progression Timeline
+                    <span id="val-cgpa-trend" class="trend-same" style="margin-left:12px"></span>
+                </h3>
+                <div style="display:flex;align-items:flex-end;gap:20px">
+                    <!-- Sparkline chart -->
+                    <div style="flex:1;height:120px;position:relative">
+                        <canvas id="gpa-sparkline" style="width:100%;height:100%"></canvas>
+                    </div>
+                    <!-- Semester value labels -->
+                    <div id="gpa-timeline" style="display:flex;gap:12px;flex-shrink:0"></div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- NEW 1: NEURAL NEWS FEED -->
+            <!-- ============================================================ -->
+            <div class="bento-card span-6" id="news-feed-card">
+                <h3 style="margin-bottom:16px">
+                    <i data-lucide="radio" style="width:18px;vertical-align:middle;margin-right:8px;color:var(--primary)"></i>
+                    Neural News Feed
+                    <span id="news-feed-status" style="font-size:0.7rem;color:var(--accent);margin-left:8px;font-weight:400">● Live</span>
+                </h3>
+                <div id="news-feed-list" style="display:flex;flex-direction:column;gap:12px">
+                    <!-- News articles injected by JS -->
+                    <div class="news-skeleton"></div>
+                    <div class="news-skeleton"></div>
+                    <div class="news-skeleton"></div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- NEW 2: PLACEMENT READINESS SPEEDOMETER -->
+            <!-- ============================================================ -->
+            <div class="bento-card span-6" id="speedometer-card" style="text-align:center">
+                <h3 style="margin-bottom:12px">
+                    <i data-lucide="gauge" style="width:18px;vertical-align:middle;margin-right:8px;color:var(--accent)"></i>
+                    Placement Readiness
+                </h3>
+                <div class="speedometer-wrap">
+                    <canvas id="speedometer-canvas" width="260" height="150"></canvas>
+                    <div id="speedometer-pct" class="speedometer-pct">0%</div>
+                    <div id="speedometer-label" class="speedometer-label">Calibrating...</div>
+                </div>
+                <div id="speedometer-breakdown" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-size:0.78rem"></div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- NEW 3: DAILY SKILL-CHECK -->
+            <!-- ============================================================ -->
+            <div class="bento-card span-6" id="skill-check-card">
+                <h3 style="margin-bottom:16px">
+                    <i data-lucide="brain-circuit" style="width:18px;vertical-align:middle;margin-right:8px;color:#f472b6"></i>
+                    Daily Skill-Check
+                </h3>
+                <!-- State 1: Init Button -->
+                <div id="skill-init" style="text-align:center;padding:20px 0">
+                    <div style="font-size:0.9rem;color:var(--text-muted);margin-bottom:20px">10 questions — 5 Aptitude + 5 Programming</div>
+                    <button class="btn btn-primary" style="width:100%;justify-content:center;gap:8px" onclick="startSkillCheck()">
+                        <i data-lucide="zap" style="width:16px"></i> Initialize Test
+                    </button>
+                </div>
+                <!-- State 2: Quiz -->
+                <div id="skill-quiz" style="display:none">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+                        <span id="quiz-section-label" style="font-size:0.8rem;color:var(--primary);font-weight:600">APTITUDE</span>
+                        <span id="quiz-progress" style="font-size:0.8rem;color:var(--text-muted)">Q1 / 10</span>
+                    </div>
+                    <div id="quiz-question" style="font-size:0.95rem;font-weight:500;margin-bottom:16px;line-height:1.5"></div>
+                    <div id="quiz-options" style="display:flex;flex-direction:column;gap:8px"></div>
+                    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+                        <button class="btn btn-primary" onclick="nextQuestion()" style="gap:6px">
+                            Next <i data-lucide="chevron-right" style="width:16px"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- State 3: Result / Locked -->
+                <div id="skill-result" style="display:none;text-align:center;padding:16px 0">
+                    <div id="skill-score-display" class="stat-large" style="font-size:3rem"></div>
+                    <div style="font-size:0.85rem;color:var(--accent);margin-top:6px;font-weight:600">Neural Calibration Complete.</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">Return tomorrow for new challenges.</div>
+                    <!-- Answer review injected by JS -->
+                    <div id="skill-answer-review" style="display:none;margin-top:14px;text-align:left;max-height:250px;overflow-y:auto;padding-right:4px"></div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- NEW 4: RESOURCE MATRIX -->
+            <!-- ============================================================ -->
+            <div class="bento-card span-6" id="resource-matrix-card">
+                <h3 style="margin-bottom:16px">
+                    <i data-lucide="library" style="width:18px;vertical-align:middle;margin-right:8px;color:#22d3ee"></i>
+                    Resource Matrix
+                    <span style="font-size:0.7rem;color:var(--text-muted);margin-left:6px;font-weight:400">Recommended Nodes</span>
+                </h3>
+                <div id="resource-list" style="display:flex;flex-direction:column;gap:10px">
+                    <!-- Resources injected by JS -->
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- NEW 5: PEER BENCHMARKING -->
+            <!-- ============================================================ -->
+            <div class="bento-card span-12" id="peer-benchmark-card">
+                <h3 style="margin-bottom:20px">
+                    <i data-lucide="users" style="width:18px;vertical-align:middle;margin-right:8px;color:#fbbf24"></i>
+                    Class Standing
+                </h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+                    <!-- CGPA Comparison -->
+                    <div class="benchmark-block">
+                        <div class="benchmark-label">CGPA vs Class Average</div>
+                        <div style="display:flex;align-items:center;gap:16px;margin-top:12px">
+                            <div style="text-align:center">
+                                <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">YOUR CGPA</div>
+                                <div id="bench-my-cgpa" class="stat-large" style="font-size:2rem;color:var(--primary)">--</div>
+                            </div>
+                            <div style="flex:1">
+                                <div id="bench-cgpa-arrow" class="benchmark-arrow"></div>
+                                <div id="bench-cgpa-delta" class="benchmark-delta"></div>
+                            </div>
+                            <div style="text-align:center">
+                                <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">CLASS AVG</div>
+                                <div id="bench-class-cgpa" class="stat-large" style="font-size:2rem;color:var(--text-muted)">--</div>
+                            </div>
+                        </div>
+                        <div id="bench-cgpa-bar-wrap" style="margin-top:14px">
+                            <div class="bench-bar-track"><div id="bench-cgpa-bar" class="bench-bar-fill"></div></div>
+                        </div>
+                    </div>
+                    <!-- Attendance Comparison -->
+                    <div class="benchmark-block">
+                        <div class="benchmark-label">Attendance vs Class Average</div>
+                        <div style="display:flex;align-items:center;gap:16px;margin-top:12px">
+                            <div style="text-align:center">
+                                <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">YOUR ATT.</div>
+                                <div id="bench-my-att" class="stat-large" style="font-size:2rem;color:var(--primary)">--</div>
+                            </div>
+                            <div style="flex:1">
+                                <div id="bench-att-arrow" class="benchmark-arrow"></div>
+                                <div id="bench-att-delta" class="benchmark-delta"></div>
+                            </div>
+                            <div style="text-align:center">
+                                <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">CLASS AVG</div>
+                                <div id="bench-class-att" class="stat-large" style="font-size:2rem;color:var(--text-muted)">--</div>
+                            </div>
+                        </div>
+                        <div id="bench-att-bar-wrap" style="margin-top:14px">
+                            <div class="bench-bar-track"><div id="bench-att-bar" class="bench-bar-fill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- --- STAFF DASHBOARD --- -->
+    <main id="section-staff" class="section hidden">
+        <div class="bento-grid">
+            <div class="bento-card span-12" style="display:flex; justify-content:space-between; align-items:center">
+                <h2>Faculty Command Matrix</h2>
+                <div style="display:flex; gap:12px">
+                    <button class="btn btn-outline" onclick="goHome()">Disconnect Session</button>
+                    <button class="btn btn-primary" onclick="showView('landing')">System Exit</button>
+                </div>
+            </div>
+
+            <!-- New Staff Profile Card -->
+            <div class="bento-card span-12" id="staff-profile-card">
+                <div style="display:grid; grid-template-columns: 1fr 2fr; gap: 32px; align-items: start;">
+                    <div style="text-align: center;">
+                        <div class="profile-photo-wrap" style="width:120px; height:120px; margin: 0 auto 16px; position:relative;">
+                            <div id="staff-initial" style="width:100%; height:100%; background:linear-gradient(135deg, var(--primary), var(--accent)); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:3rem; color:white; font-weight:700; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">V</div>
+                            <img id="staff-photo" src="" alt="" style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:16px; object-fit:cover; display:none;">
+                        </div>
+                        <h2 id="staff-name" style="font-size: 1.8rem; margin-bottom: 4px;">--</h2>
+                        <p id="staff-title" style="color:var(--text-muted); font-size: 0.9rem; line-height: 1.4;">--</p>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div>
+                            <label style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">Qualification</label>
+                            <div id="staff-qual" style="font-weight: 500;">--</div>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">Experience</label>
+                            <div id="staff-exp" style="font-weight: 500;">--</div>
+                        </div>
+                        <div class="span-2" style="grid-column: span 2;">
+                            <label style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">Area of Specialization</label>
+                            <div id="staff-spec" style="font-weight: 500; font-size: 0.95rem;">--</div>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">Conferences</label>
+                            <div id="staff-conf" style="font-weight: 500;">--</div>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">Contact Number</label>
+                            <div id="staff-contact" style="font-weight: 500; font-size: 0.85rem;">--</div>
+                        </div>
+                        <div class="span-2" style="grid-column: span 2;">
+                            <label style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary);">E-Mail ID</label>
+                            <div id="staff-email" style="font-weight: 600; color: var(--accent);">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Class Insight Engine (Staff Chat) MOVED HERE -->
+            <div class="bento-card span-12" id="staff-chat-container">
+                <div class="chat-container">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:12px">
+                        <span style="font-weight:700">Class Insight Engine</span>
+                        <span style="color:var(--accent); font-size:0.8rem">● Operational</span>
+                    </div>
+                    <div class="chat-box" id="staff-chat-box">
+                        <div class="msg msg-ai">Faculty environment synchronized. I am ready to evaluate class trends or generate visualization reports.</div>
+                    </div>
+                    <div class="chat-footer">
+                        <button class="mic-btn" id="staff-mic-btn" onclick="toggleVoice('staff')" title="Voice Input">
+                            <svg id="staff-mic-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        </button>
+                        <input type="text" id="staff-input" placeholder="Speak or type a command..." onkeypress="if(event.key==='Enter') sendQuery('staff')">
+                        <button class="speaker-btn" id="staff-speaker-btn" onclick="toggleSpeaker('staff')" title="AI Voice On/Off">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        </button>
+                        <button class="btn btn-primary" onclick="sendQuery('staff')">Execute</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bento-card span-4" id="staff-stat-1">
+                <div class="stat-label">Class Avg Score</div>
+                <div class="stat-large">7.84</div>
+            </div>
+            <div class="bento-card span-4" id="staff-stat-2">
+                <div class="stat-label">Active Students</div>
+                <div class="stat-large">63</div>
+            </div>
+            <div class="bento-card span-4" id="staff-stat-3">
+                <div class="stat-label">System Status</div>
+                <div class="stat-large" style="color: #4ade80; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="check-circle" style="width: 24px; height: 24px;"></i> OPTIMIZED
+                </div>
+            </div>
+
+            <!-- Skill-Check Scoreboard -->
+            <div class="bento-card span-12" id="staff-scoreboard-card">
+                <h3 style="margin-bottom:16px">
+                    <i data-lucide="clipboard-list" style="width:18px;vertical-align:middle;margin-right:8px;color:#f472b6"></i>
+                    Daily Skill-Check Monitor
+                    <button onclick="loadStaffScores()" style="float:right;font-size:0.75rem;padding:6px 14px;border-radius:20px;border:1px solid var(--glass-border);background:var(--glass-thick);color:var(--text-muted);cursor:pointer;" class="btn-refresh-scores">
+                        <i data-lucide="refresh-cw" style="width:12px;vertical-align:middle;margin-right:4px"></i>Refresh
+                    </button>
+                </h3>
+                
+                <!-- 2-Column Layout -->
+                <div style="display:grid;grid-template-columns:1fr 2fr;gap:30px">
+                    
+                    <!-- Left: Stats -->
+                    <div id="staff-score-summary" style="display:flex;flex-direction:column;gap:20px;font-size:0.85rem">
+                        <div style="padding:16px;background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:14px">
+                            <div id="sc-submitted" style="font-size:2rem;font-weight:700;color:#4ade80;line-height:1">0</div>
+                            <div style="color:var(--text-muted);margin-top:4px">Submitted</div>
+                        </div>
+                        <div style="padding:16px;background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.2);border-radius:14px">
+                            <div id="sc-not-submitted" style="font-size:2rem;font-weight:700;color:#f87171;line-height:1">--</div>
+                            <div style="color:var(--text-muted);margin-top:4px">Not Yet</div>
+                        </div>
+                        <div style="padding:16px;background:rgba(129,140,248,0.05);border:1px solid rgba(129,140,248,0.2);border-radius:14px">
+                            <div id="sc-total" style="font-size:2rem;font-weight:700;color:var(--primary);line-height:1">63</div>
+                            <div style="color:var(--text-muted);margin-top:4px">Total Students</div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Scrollable Names List -->
+                    <div style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:14px;padding:16px">
+                        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:12px;font-weight:600">Student Status Roster</div>
+                        <div id="staff-score-list" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;padding-right:8px">
+                            <div style="color:var(--text-muted);font-size:0.85rem;padding:20px 0;text-align:center">Loading roster...</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ML Clustering Analytics Card -->
+            <div class="bento-card span-12" id="staff-ml-cluster-card">
+                <h3 style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <i data-lucide="cpu" style="width:18px;vertical-align:middle;margin-right:8px;color:#818cf8"></i>
+                        Gen-AI Cluster Insights: Tribe Roster
+                    </div>
+                    <button onclick="fetchMLClusters()" style="font-size:0.75rem;padding:6px 14px;border-radius:20px;border:1px solid var(--glass-border);background:var(--glass-thick);color:var(--text-muted);cursor:pointer;" class="btn-refresh-scores">
+                        <i data-lucide="zap" style="width:12px;vertical-align:middle;margin-right:4px;color:#fbbf24"></i>Run ML Analysis
+                    </button>
+                </h3>
+                
+                <div style="display:grid;grid-template-columns:1fr 2fr;gap:30px">
+                    <!-- Left: Cluster Descriptions -->
+                    <div id="ml-cluster-info" style="display:flex;flex-direction:column;gap:12px;font-size:0.85rem">
+                        <div style="padding:20px;text-align:center;color:var(--text-muted);border:1px dashed var(--glass-border);border-radius:14px;">
+                            Click "Run ML Analysis" to activate the K-Means algorithm and group the batch dynamically.
+                        </div>
+                    </div>
+
+                    <!-- Right: Radar Chart Visualization -->
+                    <div style="background:var(--card-bg);border:1px solid var(--glass-border);border-radius:14px;padding:16px; display:flex; justify-content:center; align-items:center; min-height:300px;">
+                        <canvas id="cluster-chart" style="max-height: 350px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- N8N Communication Center -->
+            <div class="bento-card span-12" id="staff-n8n-comm-card" style="display:none;">
+                <h3 style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <i data-lucide="mail" style="width:18px;vertical-align:middle;margin-right:8px;color:#f472b6"></i>
+                        ☁️ N8N Communication Center
+                    </div>
+                </h3>
+                
+                <div style="display:grid; grid-template-columns:1fr 2fr; gap:30px;">
+                    <div style="display:flex; flex-direction:column; justify-content:center; gap:8px;">
+                        <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+                            Use this dedicated portal to trigger automated, targeted warnings to specific students. 
+                            The payload is routed exclusively through your n8n cloud webhook environment.
+                        </p>
+                        <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-top:12px; margin-bottom:6px;">Target Student:</label>
+                        <select id="n8n-target-student" style="width:100%; padding:12px; background:var(--glass-thick); border:1px solid var(--glass-border); border-radius:8px; color:#fff; cursor:pointer; font-family:inherit;">
+                            <option value="">Loading students...</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+                        <label style="font-size:0.8rem; color:var(--text-muted); display:block;">Custom Message Payload:</label>
+                        <textarea id="n8n-custom-message" rows="4" placeholder="Type your n8n email payload here..." style="width:100%; padding:12px; background:var(--glass-thick); border:1px solid var(--glass-border); border-radius:8px; color:#fff; resize:vertical; font-family:inherit;"></textarea>
+                        
+                        <button onclick="sendTargetedN8nEmail()" style="padding:14px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:1rem; cursor:pointer; width:100%; display:flex; justify-content:center; align-items:center;">
+                            <i data-lucide="send" style="width:18px; margin-right:8px;"></i>
+                            Send Warning via N8N Webhook
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Excel Upload & Chat Card (For specific staff!) -->
+            <div class="bento-card span-12" id="staff-data-upload-card" style="display:none">
+                <h3 style="margin-bottom:16px">
+                    <i data-lucide="database" style="width:18px;vertical-align:middle;margin-right:8px;color:#10b981"></i>
+                    Custom Data Ingestion Node & Analysis
+                </h3>
+                
+                <div style="display:grid; grid-template-columns:1fr 1.5fr; gap:20px;">
+                    <!-- Drop Zone -->
+                    <div id="drop-zone" style="border:2px dashed var(--glass-border); border-radius:14px; padding:30px 20px; text-align:center; background:rgba(255,255,255,0.02); cursor:pointer; transition:all 0.3s;" ondrop="dropExcel(event)" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" onclick="document.getElementById('excel-input').click()">
+                        <i data-lucide="upload-cloud" style="width:40px; height:40px; color:var(--text-muted); margin-bottom:12px;"></i>
+                        <h4 style="margin-bottom:4px; font-weight:600;">Drag & Drop Excel File</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted);">or click to browse (.xlsx, .xls)</p>
+                        <input type="file" id="excel-input" accept=".xlsx, .xls" style="display:none;" onchange="handleExcelSelect(event)">
+                        <div id="upload-status" style="margin-top:12px; font-size:0.8rem; font-weight:600; color:var(--primary);"></div>
+                        
+                        <div id="excel-files-list" style="margin-top:16px; font-size:0.75rem; color:var(--text-muted); text-align:left; max-height:100px; overflow-y:auto;">
+                        </div>
+                    </div>
+                    
+                    <!-- Chatbot for Excel Analysis -->
+                    <div class="chat-container">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:12px">
+                            <span style="font-weight:700">Database Analysis AI</span>
+                            <span style="color:var(--primary); font-size:0.8rem">● Ready</span>
+                        </div>
+                        <div class="chat-box" id="excel-chat-box" style="height:200px;">
+                            <div class="msg msg-ai">Upload an Excel file to the PostgreSQL database. Once connected, ask me to analyze rows, summarize patterns, or find specific records.</div>
+                        </div>
+                        <div class="chat-footer">
+                            <input type="text" id="excel-chat-input" placeholder="Query custom database..." onkeypress="if(event.key==='Enter') sendExcelQuery()">
+                            <button class="btn btn-primary" onclick="sendExcelQuery()">Analyze</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Spotlight Card -->
+            <div class="bento-card span-12" id="spotlight-card" style="display:none">
+                <div class="spotlight-badge">⚡ Student Spotlight — Practical Talent</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; margin-top:8px">
+                    <div>
+                        <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--primary)">Name</label>
+                        <div id="spot-name" style="font-weight:700; font-size:1.1rem">--</div>
+                    </div>
+                    <div>
+                        <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--primary)">Projects</label>
+                        <div id="spot-projects" style="font-weight:700; font-size:1.1rem; color:var(--accent)">--</div>
+                    </div>
+                    <div>
+                        <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--primary)">CGPA</label>
+                        <div id="spot-cgpa" style="font-weight:700; font-size:1.1rem; color:#fbbf24">--</div>
+                    </div>
+                    <div style="grid-column:span 2">
+                        <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--primary)">Career Goal</label>
+                        <div id="spot-goal" style="font-weight:500; color:var(--text-muted)">--</div>
+                    </div>
+                    <div>
+                        <label style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--primary)">Skills</label>
+                        <div id="spot-skills" style="font-weight:500; font-size:0.88rem; color:var(--text-muted)">--</div>
+                    </div>
+                </div>
+                <p style="margin-top:16px; font-size:0.85rem; color:var(--text-muted); border-top:1px solid var(--glass-border); padding-top:12px">🏆 This student shows strong hands-on ability. Consider fast-tracking for internship or project leadership opportunities.</p>
+            </div>
+
+            <!-- End of staff bento grid -->
+        </div>
+    </main>
+
+    <!-- --- GLOBAL CHAT UI (Moved dynamically) --- -->
+    <div id="global-chat-ui" class="bento-card span-12" style="display:none; padding: 24px; height: 500px; flex-direction: row; gap: 0; box-sizing: border-box; width: 100%;">
+        <!-- Left Pane: Contacts -->
+        <div class="chat-contacts-pane" style="width: 320px; flex-shrink: 0; border-right: 1px solid var(--glass-border); padding-right: 20px; display: flex; flex-direction: column; overflow: hidden;">
+            <div class="chat-header">
+                <h3>Messages</h3>
+            </div>
+            <!-- Search feature -->
+            <div class="chat-search" id="chat-search-wrap" style="margin-bottom: 12px;">
+                <input type="text" id="chat-search-input" placeholder="Find by Reg No..." style="width: 100%;">
+                <button class="icon-btn" onclick="startNewChat()" style="position: absolute; right: 10px; top: 12px;"><i data-lucide="search"></i></button>
+            </div>
+            <div class="chat-contacts-list" id="chat-contacts-list" style="flex: 1; overflow-y: auto;">
+                <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:0.85rem;">Loading contacts...</div>
+            </div>
+        </div>
+
+        <!-- Right Pane: Active Chat -->
+        <div class="chat-active-pane" id="chat-active-pane" style="flex: 1; display: flex; flex-direction: column; padding-left: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s;">
+            <div class="chat-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display:flex; flex-direction:column; margin-left:8px;">
+                    <h4 id="active-chat-name" style="margin:0;font-size:1.1rem;">--</h4>
+                    <span id="active-chat-role" style="font-size:0.75rem;color:var(--text-muted);">--</span>
+                </div>
+                <button class="icon-btn" onclick="clearActiveChat()" title="Clear Chat History" style="color: #ef4444; margin-right: 10px;">
+                    <i data-lucide="trash-2" style="width: 20px; height: 20px;"></i>
+                </button>
+            </div>
+            <div class="chat-messages" id="chat-messages-area" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding: 10px 0;">
+                <!-- Chat bubbles -->
+            </div>
+            <div class="chat-input-area" style="margin-top: 12px; border-top: none; background: transparent; padding: 0;">
+                <input type="text" id="chat-msg-input" placeholder="Type a message..." style="flex: 1; border-radius: 20px;" onkeypress="if(event.key==='Enter') sendChatMessage()">
+                <button class="btn btn-primary" style="padding: 10px 16px; border-radius: 20px; margin-left: 8px;" onclick="sendChatMessage()">
+                    <i data-lucide="send" style="width:16px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- SYSTEM BLUEPRINT MODAL --- -->
+    <div id="blueprint-modal" class="chat-modal hidden">
+        <div class="chat-modal-content" style="flex-direction: column; padding: 40px; overflow-y: auto; background: rgba(10,10,15,0.95); position: relative;">
+            <button onclick="closeBlueprint()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #666; cursor: pointer;">
+                <i data-lucide="x" style="width: 24px; height: 24px;"></i>
+            </button>
+
+            <h2 style="font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">GENESIS: System Blueprint</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 1.1rem;">A comprehensive breakdown of the Academic Insight Engine architecture.</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                <!-- ML Engine -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                        <i data-lucide="brain" style="color: #60a5fa;"></i>
+                        <h3 style="margin: 0; font-size: 1.3rem;">Predictive ML Engine</h3>
+                    </div>
+                    <ul style="color: var(--text-muted); padding-left: 20px; line-height: 1.6;">
+                        <li><strong>Unsupervised Learning</strong>: Implements K-Means Clustering via Scikit-Learn.</li>
+                        <li><strong>Tribal Classification</strong>: Automatically groups students into "Code Architects," "System Thinkers," and "Logical Strategists."</li>
+                        <li><strong>Dynamic Scaling</strong>: Normalizes academic scores, attendance, and technical aptitude for unbiased clustering.</li>
+                    </ul>
+                </div>
+
+                <!-- AI Infrastructure -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                        <i data-lucide="sparkles" style="color: #c084fc;"></i>
+                        <h3 style="margin: 0; font-size: 1.3rem;">High-Availability AI</h3>
+                    </div>
+                    <ul style="color: var(--text-muted); padding-left: 20px; line-height: 1.6;">
+                        <li><strong>Multi-LLM Strategy</strong>: Integrated with both Groq (Llama 3) and Google Gemini 2.0.</li>
+                        <li><strong>Load Balancing</strong>: Rotating 6 total API keys to bypass rate limits and ensure 24.7 uptime.</li>
+                    </ul>
+                </div>
+
+                <!-- Automation Hub -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                        <i data-lucide="webhook" style="color: #f472b6;"></i>
+                        <h3 style="margin: 0; font-size: 1.3rem;">N8N Automation</h3>
+                    </div>
+                    <p style="color: var(--text-muted); line-height: 1.6;">Direct bridge to n8n cloud for automated email dispatch and faculty CRM logic.</p>
+                </div>
+
+                <!-- Development Team -->
+                <div style="background: rgba(251, 191, 36, 0.05); border: 1px solid rgba(251, 191, 36, 0.2); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                        <i data-lucide="users" style="color: #fbbf24;"></i>
+                        <h3 style="margin: 0; font-size: 1.3rem;">Project Developers</h3>
+                    </div>
+                    <ul style="color: #eee; list-style: none; padding: 0; line-height: 1.8;">
+                        <li>🚀 <strong>PRAVEENRAJA S</strong> (III Year) — Lead Architect & ML Developer</li>
+                        <li>💻 <strong>SOWMIYA M</strong> (II Year) — Full Stack Dev</li>
+                        <li>🧪 <strong>VISHWA V</strong> (II Year) — Data Analyst</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <p style="color: var(--text-muted);">Innovated with Python Flask, PostgreSQL, Docker, and Vanilla JS Glassmorphism.</p>
+                <button class="btn btn-primary" onclick="closeBlueprint()" style="margin-top: 15px;">Return to Terminal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script src="main_v7.js"></script>
+</body>
+</html>
